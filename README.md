@@ -79,3 +79,22 @@ Available actions are:
 * `RANCIO_ACTION_UP`: go to previous sibling item;
 * `RANCIO_ACTION_DOWN`: go to next sibling item;
 * `RANCIO_ACTION_BACK`: go to parent menu, if any, otherwise nop;
+
+Compile
+-------
+
+Use [GNU make](http://www.gnu.org/software/make/) in order to compile the
+library. From the source directory, type:
+
+```bash
+make librancio.a
+```
+
+There are also other targets for testing and cleaning (see Makefile).
+
+The library is easy to link. Suppose to have a source file `example.c`;
+then you can compile and link with:
+
+```bash
+gcc -o example -L/path/to/rancio example.c -lrancio
+```
