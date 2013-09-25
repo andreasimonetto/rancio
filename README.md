@@ -1,6 +1,5 @@
-
-Rancio - tiny Textual Menu System library
-=========================================
+Rancio - tiny Textual Menu System
+=================================
 
 Summary
 -------
