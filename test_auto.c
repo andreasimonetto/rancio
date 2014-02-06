@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "rancio.h"
 
-/*
 void print_r(rancio_item_t *root, unsigned indent)
 {
 rancio_item_t *p;
@@ -10,48 +9,9 @@ unsigned i;
     for(p = root; p && p->label; p++) {
         for(i = 0; i < indent; i++)
             printf("   ");
-        puts(p->label);
+        printf("%s (%s)\n", p->id, p->label);
         print_r(p->childs, indent + 1);
     }
-}
-*/
-
-/* Blocking input request */
-rancio_action_t get_action()
-{
-char command;
-rancio_action_t act;
-
-    do {
-        printf("Command (s=select, u=up, d=down, b=back, q=quit)? ");
-        fflush(stdout);
-        command = getchar();
-        while(command != '\n' && getchar() != '\n');
-
-        switch(command) {
-            case 's':
-                act = RANCIO_ACTION_SELECT;
-                break;
-            case 'u':
-                act = RANCIO_ACTION_UP;
-                break;
-            case 'd':
-                act = RANCIO_ACTION_DOWN;
-                break;
-            case 'b':
-                act = RANCIO_ACTION_BACK;
-                break;
-            case 'q':
-                act = RANCIO_ACTION_CLOSE;
-                break;
-            default:
-                act = RANCIO_ACTION_NONE;
-                printf("\nWhat?!\n");
-                break;
-        }
-        printf("\n");
-    } while(act == RANCIO_ACTION_NONE);
-    return act;
 }
 
 /* Printer */
@@ -69,7 +29,7 @@ void print_selected_item(rancio_menu_t *menu, rancio_item_t *item)
 int main()
 {
 rancio_menu_t menu;
-rancio_item_t menuitems[] = {
+rancio_item_t *it, menuitems[] = {
     { "status", "Status", 0, 0, print_selected_item },
     { "setup", "Setup", 0, (rancio_item_t[]) {
         { "type", "Type", 0, (rancio_item_t[]) {
@@ -93,12 +53,13 @@ rancio_item_t menuitems[] = {
 };
 
     rancio_menu_init(&menu, menuitems, print_item);
-    /*print_r(menu.root, 0);*/
-    
-    do {
-        rancio_menu_print(&menu);
-    } while(rancio_menu_action(&menu, get_action()));
+    print_r(menu.root, 0);
 
+    it = rancio_menu_getitem(&menu, "/setup/network/addr");
+    if(it)
+        printf("\nSelected: %s\n", it->id);
+    else
+        printf("\nItem not found\n");
     return 0;
 }
 

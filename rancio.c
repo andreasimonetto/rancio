@@ -20,7 +20,7 @@
 #define mi_isleaf(p) ((p) && !((p)->childs))
 #define mi_parent(p) ((p)->parent)
 #define mi_firstchild(p) ((p)->childs)
-#define mi_islastsibling(p) (!(p) || !((p)->name))
+#define mi_islastsibling(p) (!(p) || !((p)->label))
 #define mi_getid(root, item) ((item) - mi_firstsibling(root, item))
 
 static rancio_item_t* mi_firstsibling(rancio_item_t *root, rancio_item_t *item)
@@ -35,7 +35,7 @@ static rancio_item_t* mi_nextsibling(rancio_item_t *root, rancio_item_t *item)
 rancio_item_t *next_sibling = item + 1;
 
     if(!mi_islastsibling(item))
-        return (next_sibling && next_sibling->name ? next_sibling : 0);
+        return (next_sibling && next_sibling->label ? next_sibling : 0);
     return 0;
 }
 
@@ -44,7 +44,7 @@ static rancio_item_t* mi_prevsibling(rancio_item_t *root, rancio_item_t *item)
 rancio_item_t *prev_sibling = item - 1, *first_sibling = mi_firstsibling(root, item);
 
     if(first_sibling)
-       return (prev_sibling >= first_sibling && prev_sibling->name ? prev_sibling : 0);
+       return (prev_sibling >= first_sibling && prev_sibling->label ? prev_sibling : 0);
     return 0;
 }
 
@@ -81,7 +81,7 @@ unsigned i = 0, len = 0;
         len++;
 
     for(p = mi_firstsibling(menu->root, menu->curitem); !mi_islastsibling(p); p++)
-        menu->printer(menu, p->name, i++, len);
+        menu->printer(menu, p->label, i++, len);
 }
 
 int rancio_menu_action(rancio_menu_t *menu, rancio_action_t act)
@@ -123,5 +123,46 @@ rancio_item_t *p;
 unsigned rancio_menu_curitem_id(rancio_menu_t *menu)
 {
     return (menu->curitem - mi_firstsibling(menu->root, menu->curitem));
+}
+
+rancio_item_t* rancio_menu_getitem(rancio_menu_t *menu, const char *path)
+{
+unsigned len;
+rancio_item_t *p;
+
+    if(!path || !(*path))
+        return 0;
+    
+    if(path[0] == '/') {
+        p = menu->root;
+        path++;
+    }
+    else
+        p = menu->curitem;
+    
+    while(*path) {
+        len = 0;
+        while(path[len] && path[len] != '/' && !mi_islastsibling(p)) {
+            while(path[len] && path[len] != '/' && p->id[len] && path[len] == p->id[len])
+                len++;
+            
+            if((path[len] && path[len] != '/') || p->id[len]) {
+                len = 0;
+                p++;
+            }
+        }
+        
+        if(mi_islastsibling(p))
+            return 0;
+
+        path += len;            
+        if(*path) {
+            path++;
+            if(*path)
+                p = p->childs;
+        }
+    }
+    
+    return p;
 }
 

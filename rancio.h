@@ -17,7 +17,7 @@
 #define RANCIO_H
 
 #define RANCIO_MAJOR 1  /* API breaking */
-#define RANCIO_MINOR 0  /* Minor features or significant fixes */
+#define RANCIO_MINOR 1  /* Minor features or significant fixes */
 #define RANCIO_REV 0    /* Minor bugs */
 
 /* Test for RANCIO > 1.2.77 with:
@@ -43,13 +43,14 @@ typedef enum {
 
 /* Functional parameters */
 typedef void (*rancio_item_handler_t)(rancio_menu_t *menu, rancio_item_t *item);
-typedef void (*rancio_printer_t)(rancio_menu_t *menu, const char *name, unsigned id, unsigned len);
+typedef void (*rancio_printer_t)(rancio_menu_t *menu, const char *label, unsigned id, unsigned len);
 /*typedef rancio_action_t (*rancio_reader_t)(rancio_menu_t *menu);*/
 
 /* Menu item */
 struct _rancio_item {
-    const char *name;
-    rancio_item_t *parent; 
+    const char *id;
+    const char *label;
+    rancio_item_t *parent; /* Init to NULL */
     rancio_item_t *childs; /* This must be an array of items */
     
     /* Function to call when item is selected. The function is called only
@@ -77,9 +78,9 @@ struct _rancio_menu {
 
 /* Initialize menu with given items (an array of rancio_item_t) and printer. The
 printer is a function like:
-void f(rancio_menu_t *m, const char *n, unsigned i, unsigned len)
+void f(rancio_menu_t *m, const char *l, unsigned i, unsigned len)
 {
-    // Print item at position i, having name n and having len siblings
+    // Print item at position i, having label l and having len siblings
     // Currently selected item can be retreived with rancio_menu_curitem_id(m)
 }
 */
@@ -88,6 +89,10 @@ rancio_menu_t* rancio_menu_init(rancio_menu_t *menu, rancio_item_t *items, ranci
 /* Inject an action into a menu. Printer is NOT called by this function.
 */
 int rancio_menu_action(rancio_menu_t *menu, rancio_action_t act);
+
+/* Returns a menu item using a path like "/itemID1/itemID2/...".
+*/
+rancio_item_t* rancio_menu_getitem(rancio_menu_t *menu, const char *path);
 
 /* Print user menu using printer passed to rancio_menu_init().
 */
